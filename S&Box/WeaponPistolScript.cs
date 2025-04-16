@@ -4,7 +4,10 @@ public sealed class WeaponPistolScript : Component
 {
 	[Property] SkinnedModelRenderer mainBody { get; set; }
 	[Property] GameObject firePoint { get; set; }
-
+	[Property] GameObject muzzleFlashPosition { get; set; }
+	[Property] SoundEvent gunClick { get; set; }
+	[Property] SoundEvent fireSound { get; set; }
+	[Property] SoundEvent reloadSound { get; set; }
 	[Property] float Damage { get; set; } = 10f;
 	[Property] float Range { get; set; } = 500f;
 	[Property] float FireRate { get; set; } = 0.2f;
@@ -12,6 +15,9 @@ public sealed class WeaponPistolScript : Component
 	[Property] float reloadTime { get; set; } = 1.5f;
 	[Property] int maxAmmo { get; set; } = 10;
 
+	SoundHandle stopSound;
+	public bool isFiring; // For reference just in case if ModelRenderer is managed by another script
+	bool _onEnable = false;
 	bool _canFire;
 	bool _isReloading = false;
 	int _currentAmmo;
@@ -22,7 +28,25 @@ public sealed class WeaponPistolScript : Component
 	{
 		_currentAmmo = maxAmmo;
 		_canFire = true;
-		Log.Info( "Pistol Enabled" );
+		Log.Info( "Pistol Enabled" );	
+	}
+
+	protected override void OnEnabled()
+	{
+		onEnableDelay();
+	}
+
+	protected override void OnDisabled()
+	{
+		
+		_onEnable = false;
+		if(_isReloading) // Fixes reloading, unable to get maxAmmo if you disabled or switched to another weapon while the weapon is reloading...
+		{
+			//Future fix, Cancel animation, During reload animation, swapping back, and reloading again, the animation is not played.
+			stopSound.Stop();
+			_isReloading = false;
+			_reloadStopTime = 0f;
+		}
 	}
 
 	protected override void OnFixedUpdate()
@@ -30,12 +54,13 @@ public sealed class WeaponPistolScript : Component
 		if ( !mainBody.IsValid() ) return;
 		if (this.GameObject.Enabled == true)
 		{
-			if (Input.Down("Attack1") && _currentAmmo > 0 && _canFire && !_isReloading)
+			if (Input.Down("Attack1") && _canFire && !_isReloading && _onEnable)
 			{
 				pistolAttack();
 			}
 
-			if(Input.Pressed( "Reload" ) && _currentAmmo < maxAmmo)
+
+			if ( Input.Pressed( "Reload" ) && _currentAmmo < maxAmmo && _onEnable && !_isReloading )
 			{
 				_reloadStopTime = Time.Now + reloadTime;
 				pistolReload();
@@ -44,31 +69,71 @@ public sealed class WeaponPistolScript : Component
 			if ( _reloadStopTime < Time.Now && _isReloading)
 			{
 				_isReloading = false;
-				Log.Info( "Reload Complete" );
+				_currentAmmo = maxAmmo;
 			}
 
 			if ( _nextFire < Time.Now )
 			{
 				_canFire = true;
+				isFiring = false;
 			}
 		}
 	}
 
 	void pistolAttack()
 	{
-		mainBody.Set( "b_attack", true );
-		_currentAmmo--;
-		_canFire = false;
-		_nextFire = Time.Now + FireRate;
-		Log.Info( "Pistol Ammo Count: " + _currentAmmo );
+		if (_currentAmmo > 0 )
+		{
+			pistolFireSound();
+			muzzleFlashs();
+			mainBody.Set( "b_attack", true );
+			_currentAmmo--;
+			isFiring = true;
+			_canFire = false;
+			_nextFire = Time.Now + FireRate;
+			Log.Info( "Pistol Ammo Count: " + _currentAmmo );
+		}
+		else
+		{
+			if ( !gunClick.IsValid ) return;
+			Sound.Play( gunClick, Transform.World.Position );
+			_nextFire = Time.Now + FireRate;
+			_canFire = false;
+			Log.Info( "Pistol Click Sound Played" );
+		}
 	}
 
+	private void pistolFireSound()
+	{
+		if ( !fireSound.IsValid ) return;
+		Sound.Play( fireSound, Transform.World.Position);
+		//Log.Info( "Pistol Fire Sound Played" );
+	}
+	private void pistolReloadSound()
+	{
+		if ( !reloadSound.IsValid ) return;
+		stopSound = Sound.Play( reloadSound, Transform.World.Position );
+		//Log.Info( "Pistol Reload Sound Played" );
+	}
 	void pistolReload()
 	{
+		pistolReloadSound();
 		_isReloading = true;
 		mainBody.Set( "b_reload", true );
-		_currentAmmo = maxAmmo;
 		Log.Info( "Pistol Reloading.." );
+	}
+
+	private async void muzzleFlashs()
+	{
+		GameObject muzzleFlashCreate = GameObject.Clone( "weapon/pistol/pistol_muzzleflash.prefab", muzzleFlashPosition.WorldTransform );
+		await Task.DelaySeconds( 0.1f );
+		muzzleFlashCreate.Destroy();
+	}
+
+	private async void onEnableDelay()
+	{
+		await Task.DelaySeconds( 0.5f );
+		_onEnable = true;
 	}
 	void pistolCommon()
 	{

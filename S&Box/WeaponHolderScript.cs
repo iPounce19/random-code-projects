@@ -14,6 +14,8 @@ public sealed class WeaponHolderScript : Component
 	}
 	[Property] SkinnedModelRenderer mainBody { get; set;}
 
+	[Property] SoundEvent switchSound { get; set; }
+
 	[Property] GameObject Shotgun { get; set;}
 	[Property] GameObject Pistol {  get; set;}
 	[Property] GameObject bigPistol { get; set; }
@@ -30,26 +32,31 @@ public sealed class WeaponHolderScript : Component
 		switch (true)
 		{
 			case var _ when Input.Pressed( "Holster" ):
+				if ( weaponEquip == weaponList.None ) break;
 				Log.Info( "Switch to Holster" );
 				weaponEquip = weaponList.None;
 				checkWeaponHold( weaponEquip );
 				break;
 			case var _ when Input.Pressed( "Slot1" ):
+				if ( weaponEquip == weaponList.Pistol ) break;
 				Log.Info( "Switch to Pistol" );
 				weaponEquip = weaponList.Pistol;
 				checkWeaponHold( weaponEquip );
 				break;
 			case var _ when Input.Pressed( "Slot2" ):
+				if ( weaponEquip == weaponList.Shotgun ) break;
 				Log.Info( "Switch to Shotgun" );
 				weaponEquip = weaponList.Shotgun;
 				checkWeaponHold( weaponEquip );
 				break;
 			case var _ when Input.Pressed( "Slot3" ):
+				if ( weaponEquip == weaponList.Big_Pistol ) break;
 				Log.Info( "Switch to Big Pistol" );
 				weaponEquip = weaponList.Big_Pistol;
 				checkWeaponHold( weaponEquip );
 				break;
 			case var _ when Input.Pressed( "Melee" ):
+				if ( weaponEquip == weaponList.Melee_Punch ) break;
 				Log.Info( "Switch to Melee - Punch " );
 				weaponEquip = weaponList.Melee_Punch;
 				checkWeaponHold( weaponEquip );
@@ -135,7 +142,7 @@ public sealed class WeaponHolderScript : Component
 				Pistol.Enabled = false;
 				bigPistol.Enabled = true;
 				Shotgun.Enabled = false;
-				meleePunch.Enabled = true;
+				meleePunch.Enabled = false;
 				break;
 			default:
 				break;
