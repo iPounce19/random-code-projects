@@ -1,0 +1,21 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace Sandbox
+
+<root>
+	<div class="Health">
+		<p>
+			💖: @_playerHP.playerHP
+		</p>
+	</div>
+</root>
+
+@code
+{
+	[Property] PlayerHP _playerHP{ get; set; }
+	protected override int BuildHash()
+	{
+		return System.HashCode.Combine(_playerHP.playerHP);
+	}
+}
