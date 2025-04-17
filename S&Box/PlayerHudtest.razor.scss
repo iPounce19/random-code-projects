@@ -1,0 +1,17 @@
+PlayerHudtest
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	font-family: Poppins;
+	font-size: 32px;
+
+	> .Health{
+		position:absolute;
+		bottom: 3%;
+		left: 3%;
+		font-size:48px;
+	}
+}

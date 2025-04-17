@@ -20,7 +20,12 @@ public sealed class WeaponHolderScript : Component
 	[Property] GameObject Pistol {  get; set;}
 	[Property] GameObject bigPistol { get; set; }
 	[Property] GameObject meleePunch { get; set;}
-	[Property] weaponList weaponEquip { get; set;}
+	[Property, ReadOnly] weaponList weaponEquip { get; set;}
+
+	[Property, ReadOnly] WeaponPistolScript weaponPistol { get; set; }
+	[Property, ReadOnly] WeaponShotgunScript weaponShotgun { get; set; }
+	[Property, ReadOnly] public int currentAmmo { get; set; }
+	[Property, ReadOnly] public int maxAmmo { get; set; }
 
 	protected override void OnStart() 
 	{
@@ -42,6 +47,7 @@ public sealed class WeaponHolderScript : Component
 				Log.Info( "Switch to Pistol" );
 				weaponEquip = weaponList.Pistol;
 				checkWeaponHold( weaponEquip );
+				weaponPistol = Pistol.GetComponent<WeaponPistolScript>();
 				break;
 			case var _ when Input.Pressed( "Slot2" ):
 				if ( weaponEquip == weaponList.Shotgun ) break;
@@ -64,6 +70,7 @@ public sealed class WeaponHolderScript : Component
 			default:
 				break;
 		}
+		currentAmmo = weaponPistol._currentAmmo;
 	}
 
 	public void checkWeaponHold(weaponList weaponEquip)

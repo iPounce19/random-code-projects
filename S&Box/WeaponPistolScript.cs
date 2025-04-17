@@ -13,14 +13,14 @@ public sealed class WeaponPistolScript : Component
 	[Property] float FireRate { get; set; } = 0.2f;
 
 	[Property] float reloadTime { get; set; } = 1.5f;
-	[Property] int maxAmmo { get; set; } = 10;
+	[Property] public int maxAmmo { get; set; } = 10;
 
 	SoundHandle stopSound;
 	public bool isFiring; // For reference just in case if ModelRenderer is managed by another script
 	bool _onEnable = false;
 	bool _canFire;
 	bool _isReloading = false;
-	int _currentAmmo;
+	public int _currentAmmo;
 	float _nextFire;
 	float _reloadStopTime = 0f;
 
