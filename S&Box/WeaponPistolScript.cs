@@ -1,4 +1,5 @@
 using Sandbox;
+using System;
 
 public sealed class WeaponPistolScript : Component
 {
@@ -13,7 +14,14 @@ public sealed class WeaponPistolScript : Component
 	[Property] float FireRate { get; set; } = 0.2f;
 
 	[Property] float reloadTime { get; set; } = 1.5f;
+	/// <summary>
+	/// Maximum Ammo for this gun.
+	/// </summary>
 	[Property] public int maxAmmo { get; set; } = 10;
+	/// <summary>
+	/// 25% chance to fire two bullet instead of one. Consumes two bullets.
+	/// </summary>
+	[Property] bool isDoubleTapEnabled { get; set; } = false; // Don't forget to test it to false, true is for testing.
 
 	SoundHandle stopSound;
 	public bool isFiring; // For reference just in case if ModelRenderer is managed by another script
@@ -23,6 +31,7 @@ public sealed class WeaponPistolScript : Component
 	public int _currentAmmo;
 	float _nextFire;
 	float _reloadStopTime = 0f;
+	bool _canDoubleTap= false;
 
 	protected override void OnStart()
 	{
@@ -56,7 +65,15 @@ public sealed class WeaponPistolScript : Component
 		{
 			if (Input.Down("Attack1") && _canFire && !_isReloading && _onEnable)
 			{
-				pistolAttack();
+				if ( isDoubleTapEnabled && _currentAmmo >= 2 && Random.Shared.Float( 0, 1 ) < 0.2f )
+				{
+					Log.Info( "Double Tap!" );
+					doubleTap();
+				}
+				else
+				{
+					pistolAttack();
+				}
 			}
 
 
@@ -77,6 +94,8 @@ public sealed class WeaponPistolScript : Component
 				_canFire = true;
 				isFiring = false;
 			}
+
+
 		}
 	}
 
@@ -126,7 +145,7 @@ public sealed class WeaponPistolScript : Component
 	private async void muzzleFlashs()
 	{
 		GameObject muzzleFlashCreate = GameObject.Clone( "weapon/pistol/pistol_muzzleflash.prefab", muzzleFlashPosition.WorldTransform );
-		await Task.DelaySeconds( 0.1f );
+		await Task.DelaySeconds( 0.05f );
 		muzzleFlashCreate.Destroy();
 	}
 
@@ -134,6 +153,13 @@ public sealed class WeaponPistolScript : Component
 	{
 		await Task.DelaySeconds( 0.5f );
 		_onEnable = true;
+	}
+
+	async void doubleTap()
+	{
+		pistolAttack();
+		await Task.DelaySeconds( 0.1f );
+		pistolAttack();
 	}
 	void pistolCommon()
 	{

@@ -54,6 +54,7 @@ public sealed class WeaponHolderScript : Component
 				Log.Info( "Switch to Shotgun" );
 				weaponEquip = weaponList.Shotgun;
 				checkWeaponHold( weaponEquip );
+				weaponShotgun = Shotgun.GetComponent<WeaponShotgunScript>();
 				break;
 			case var _ when Input.Pressed( "Slot3" ):
 				if ( weaponEquip == weaponList.Big_Pistol ) break;
@@ -70,7 +71,7 @@ public sealed class WeaponHolderScript : Component
 			default:
 				break;
 		}
-		currentAmmo = weaponPistol._currentAmmo;
+		ammoCheck();
 	}
 
 	public void checkWeaponHold(weaponList weaponEquip)
@@ -117,6 +118,28 @@ public sealed class WeaponHolderScript : Component
 		}
 	}
 
+
+	void ammoCheck()
+	{
+		switch ( weaponEquip )
+		{
+			case weaponList.None:
+				currentAmmo = 0;
+				maxAmmo = 0;
+				break;
+			case weaponList.Pistol:
+				currentAmmo = weaponPistol._currentAmmo;
+				maxAmmo = weaponPistol.maxAmmo;
+				break;
+			case weaponList.Shotgun:
+				currentAmmo = weaponShotgun._currentAmmo;
+				maxAmmo = weaponShotgun.maxAmmo;
+				break;
+			default:
+				break;
+		}
+
+	}
 	private void changeWeapon()
 	{
 		switch (weaponEquip)

@@ -9,13 +9,21 @@
 			💖: @_playerHP.playerHP
 		</p>
 	</div>
+	<div class="currentGun">
+		<p>
+			Ammo:  @_weaponHolder.currentAmmo | @_weaponHolder.maxAmmo
+		</p>
+	</div>
 </root>
 
 @code
 {
 	[Property] PlayerHP _playerHP{ get; set; }
+	[Property] WeaponHolderScript _weaponHolder { get; set; }
+
+
 	protected override int BuildHash()
 	{
-		return System.HashCode.Combine(_playerHP.playerHP);
+		return System.HashCode.Combine(_playerHP.playerHP, _weaponHolder.currentAmmo, _weaponHolder.maxAmmo);
 	}
 }
