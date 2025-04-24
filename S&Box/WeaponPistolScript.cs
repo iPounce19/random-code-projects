@@ -13,6 +13,7 @@ public sealed class WeaponPistolScript : Component
 	[Property, Group( "References" )] PlayerController controller { get; set; }
 	[Property, Group("References")] SkinnedModelRenderer mainBody { get; set; }
 	[Property, Group( "References" )] SkinnedModelRenderer gunModel { get; set; }
+	[Property, Group( "References" )] UnitComponent unitComponent { get; set; }
 	[Property, Group( "References" )] GameObject firePoint { get; set; }
 	[Property, Group( "References" )] GameObject camera { get; set; }
 	[Property, Group( "References" )] GameObject muzzleFlashPosition { get; set; }
@@ -23,6 +24,8 @@ public sealed class WeaponPistolScript : Component
 	[Property, Group( "References" )] SoundEvent reloadSound { get; set; }
 	[Property, Group( "References" )] string muzzleFlashPrefab { get; set; } = "weapon/pistol/pistol_muzzleflash.prefab";
 	[Property, Group( "References" )] string shellCasingPrefab { get; set; } = "weapon/pistol/pistol_shell.prefab";
+	[Property, Group( "References" )] PrefabFile bulletPrefab { get; set; }
+
 	[Property] weaponTier gunTier { get; set; } = weaponTier.Default; // Default, Uncommon, Rare
 
 
@@ -36,23 +39,25 @@ public sealed class WeaponPistolScript : Component
 	/// <summary>
 	/// Self explanatory
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" )] float Damage_default { get; set; } = 10f;
+	[Property, Group( "A2 Default Pistol Stats" ), Feature( "Gun Stats" )] float Damage_default { get; set; } = 10f;
 	/// <summary>
 	/// How long is the gun's range. Raycast method
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" )] float Range_default { get; set; } = 500f;
+	[Property, Group( "A2 Default Pistol Stats" ), Feature( "Gun Stats" )] float Range_default { get; set; } = 500f;
 	/// <summary>
 	/// How fast the gun will fire, in seconds. 0.2f = 5 shots per second.
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" )] float FireRate_default { get; set; } = 0.2f;
+	[Property, Group("A2 Default Pistol Stats"), Feature("Gun Stats")] float FireRate_default { get; set; } = 0.2f;
 	/// <summary>
 	/// Reload speed, how fast the character will reload and insert bullets. Doesn't affect animation
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" )] float reloadTime_default { get; set; } = 1.5f;
+	[Property, Group("A2 Default Pistol Stats"), Feature("Gun Stats")] float reloadTime_default { get; set; } = 1.5f;
 	/// <summary>
 	/// Maximum Ammo for this gun.
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" )] int maxAmmo_default { get; set; } = 10;
+	[Property, Group("A2 Default Pistol Stats"), Feature("Gun Stats")] int maxAmmo_default { get; set; } = 10;
+
+	[Property, Group("A2 Default Pistol Stats"), Feature("Gun Stats")] float bulletSpeed_default { get; set; } = 50000f;
 
 	/////////////////////////////////////////////////
 
@@ -61,23 +66,24 @@ public sealed class WeaponPistolScript : Component
 	/// <summary>
 	/// Self explanatory
 	/// </summary>
-	[Property, Group( "A3 UNCOMMON Pistol Stats" )] float Damage_uncommon { get; set; } = 13f;
+	[Property, Group( "A3 UNCOMMON Pistol Stats" ), Feature( "Gun Stats" )] float Damage_uncommon { get; set; } = 13f;
 	/// <summary>
 	/// How long is the gun's range. Raycast method
 	/// </summary>
-	[Property, Group( "A3 UNCOMMON Pistol Stats" )] float Range_uncommon { get; set; } = 700f;
+	[Property, Group("A3 UNCOMMON Pistol Stats"), Feature("Gun Stats")] float Range_uncommon { get; set; } = 700f;
 	/// <summary>
 	/// How fast the gun will fire, in seconds. 0.2f = 5 shots per second.
 	/// </summary>
-	[Property, Group( "A3 UNCOMMON Pistol Stats" )] float FireRate_uncommon { get; set; } = 0.16f;
+	[Property, Group("A3 UNCOMMON Pistol Stats"), Feature("Gun Stats")] float FireRate_uncommon { get; set; } = 0.16f;
 	/// <summary>
 	/// Reload speed, how fast the character will reload and insert bullets. Doesn't affect animation
 	/// </summary>
-	[Property, Group( "A3 UNCOMMON Pistol Stats" )] float reloadTime_uncommon { get; set; } = 1.3f;
+	[Property, Group("A3 UNCOMMON Pistol Stats"), Feature("Gun Stats")] float reloadTime_uncommon { get; set; } = 1.3f;
 	/// <summary>
 	/// Maximum Ammo for this gun.
 	/// </summary>
-	[Property, Group( "A3 UNCOMMON Pistol Stats" )]  int maxAmmo_uncommon { get; set; } = 15;
+	[Property, Group("A3 UNCOMMON Pistol Stats"), Feature("Gun Stats")]  int maxAmmo_uncommon { get; set; } = 15;
+	[Property, Group("A3 UNCOMMON Pistol Stats"), Feature("Gun Stats")] float bulletSpeed_uncommon { get; set; }
 
 	/////////////////////////////////////////////////
 
@@ -86,32 +92,62 @@ public sealed class WeaponPistolScript : Component
 	/// <summary>
 	/// Self explanatory
 	/// </summary>
-	[Property, Group( "A4 RARE Pistol Stats" )] float Damage_rare { get; set; } = 16f;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")] float Damage_rare { get; set; } = 16f;
 	/// <summary>
 	/// How long is the gun's range. Raycast method
 	/// </summary>
-	[Property, Group( "A4 RARE Pistol Stats" )] float Range_rare { get; set; } = 900f;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")] float Range_rare { get; set; } = 900f;
 	/// <summary>
 	/// How fast the gun will fire, in seconds. 0.2f = 5 shots per second.
 	/// </summary>
-	[Property, Group( "A4 RARE Pistol Stats" )] float FireRate_rare { get; set; } = 0.12f;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")] float FireRate_rare { get; set; } = 0.12f;
 	/// <summary>
 	/// Reload speed, how fast the character will reload and insert bullets. Doesn't affect animation
 	/// </summary>
-	[Property, Group( "A4 RARE Pistol Stats" )] float reloadTime_rare { get; set; } = 1.1f;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")] float reloadTime_rare { get; set; } = 1.1f;
 	/// <summary>
 	/// Maximum Ammo for this gun.
 	/// </summary>
-	[Property, Group( "A4 RARE Pistol Stats" )]  int maxAmmo_rare { get; set; } = 20;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")]  int maxAmmo_rare { get; set; } = 20;
+	[Property, Group("A4 RARE Pistol Stats"), Feature("Gun Stats")] float bulletSpeed_rare { get; set; }
 
 	/////////////////////////////////////////////////
+	///
+	[Property, Feature ( "Gun Stats" ), Group( "Exploding Bullets" )] float explosionDamage { get; set; } = 20f;
+	[Property, Feature ( "Gun Stats" ), Group( "Exploding Bullets" )] float explosionRadius { get; set; } = 30f;
+	[Property, Feature ( "Gun Stats" ), Group( "Exploding Bullets" )] float explosionForce { get; set; } = 100f;
+
 
 
 	/// <summary>
 	/// 25% chance to fire two bullet instead of one. Consumes two bullets.
 	/// </summary>
-	[Property, Group( "Gun Power UPs" )] bool isDoubleTapEnabled { get; set; } = false; // Don't forget to test it to false, true is for testing.
-	[Property, Group( "Gun Power UPs" )] bool doBulletsExplode { get; set; } = false; // Don't forget to test it to false, true is for testing.
+	[Property, Group( "Gun Power UPs" )] public bool isDoubleTapEnabled { get; set; }
+	/*{
+		get
+		{
+			if(unitComponent.isDoubleTapEnabled )
+			{
+				return true;
+			}
+			else return false;
+		}
+		set => isDoubleTapEnabled = value;
+	}*/
+	[Property, Group( "Gun Power UPs" )] public bool doBulletsExplode { get;set; }
+	/*{
+		get
+		{
+			if ( unitComponent.doBulletsExplode )
+			{
+				return true;
+			}
+			else return false;
+		}
+		set => doBulletsExplode = value;
+	}*/
+	[Property, Group( "Gun Power UPs" )] public bool doBulletsPenetrate { get; set; }
+
 	[Property, Group( "Miscellaneous" )] float shellCasingTimeToDisappear { get; set; } = 10f;
 
 	SoundHandle stopSound;
@@ -132,7 +168,7 @@ public sealed class WeaponPistolScript : Component
 		checkGunTier();
 		_currentAmmo = maxAmmo;
 		_canFire = true;
-		Log.Info( "Pistol Enabled" );	
+		//Log.Info( "Pistol Enabled" );	
 	}
 
 	protected override void OnEnabled()
@@ -154,10 +190,7 @@ public sealed class WeaponPistolScript : Component
 	}
 
 
-	protected override void OnUpdate()
-	{
-		debugPistol();
-	}
+
 	protected override void OnFixedUpdate()
 	{
 		
@@ -232,25 +265,14 @@ public sealed class WeaponPistolScript : Component
 		}
 	}
 
-	void debugPistol()
-	{
-		// NOITE: Convert WorldRotation to Vector3 by using Angle angle = From.Rotation(WorldRotation)
-		var fireDirection = controller.EyeAngles.Forward;
-		var firePosition = controller.EyePosition;
-		var fireEnd = firePosition + fireDirection * Range;
-		//Gizmo.Draw.Line(camera.WorldPosition, Vector3.Forward);
-		var tr = Scene.Trace.Ray(firePosition, fireEnd )
-			.Run();
-		Gizmo.Draw.Line(firePosition, tr.EndPosition);
-		Gizmo.Draw.Line( camera.WorldPosition, tr.EndPosition );
-		//Gizmo.Draw.Line( muzzleFlashPosition.WorldPosition, 1000f );
-	}
+
 	void pistolAttack()
 	{
 		if (_currentAmmo > 0 )
 		{
 			pistolFireSound();
 			muzzleFlashs();
+			spawnProjectile();
 			mainBody.Set( "b_attack", true );
 			_currentAmmo--;
 			isFiring = true;
@@ -258,7 +280,7 @@ public sealed class WeaponPistolScript : Component
 			_nextFire = Time.Now + FireRate;
 
 			shellCasingCreateDestroy();
-			Log.Info( "Pistol Ammo Count: " + _currentAmmo );
+			//Log.Info( "Pistol Ammo Count: " + _currentAmmo );
 		}
 		else
 		{
@@ -266,7 +288,7 @@ public sealed class WeaponPistolScript : Component
 			Sound.Play( gunClick, Transform.World.Position );
 			_nextFire = Time.Now + FireRate;
 			_canFire = false;
-			Log.Info( "Pistol Click Sound Played" );
+			//Log.Info( "Pistol Click Sound Played" );
 		}
 	}
 
@@ -287,7 +309,30 @@ public sealed class WeaponPistolScript : Component
 		pistolReloadSound();
 		_isReloading = true;
 		mainBody.Set( "b_reload", true );
-		Log.Info( "Pistol Reloading.." );
+		//Log.Info( "Pistol Reloading.." );
+	}
+
+	private void spawnProjectile()
+	{
+		if ( !bulletPrefab.IsValid ) return;
+		var projectile = GameObject.Clone( bulletPrefab, muzzleFlashPosition.WorldTransform );
+		Rigidbody rb = projectile.GetComponent<Rigidbody>();
+		BulletTest bullet = projectile.GetComponent<BulletTest>();
+		if ( !rb.IsValid) return;
+		if ( !bullet.IsValid ) return;
+		bullet.maxRange = Range;
+		bullet.damage = Damage;
+		bullet.teamType = unitComponent.teamType;
+		rb.ApplyForce( controller.EyeAngles.Forward * bulletSpeed_default);
+		if ( doBulletsExplode )
+		{
+			projectile.AddComponent<Explode>();
+			var explosion = projectile.GetComponent<Explode>();
+			explosion.explosionDamage = explosionDamage;
+			explosion.explosionRadius = explosionRadius;
+			explosion.explosionForce = explosionForce;
+			explosion.teamType = unitComponent.teamType;
+		}
 	}
 
 	private async void shellCasingCreateDestroy()
@@ -296,6 +341,7 @@ public sealed class WeaponPistolScript : Component
 		await Task.DelaySeconds( shellCasingTimeToDisappear );
 		ejectedCasing.Destroy();
 	}
+
 	private async void muzzleFlashs()
 	{
 		GameObject muzzleFlashCreate = GameObject.Clone( muzzleFlashPrefab, muzzleFlashPosition.WorldTransform );

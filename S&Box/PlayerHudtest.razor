@@ -18,19 +18,19 @@
 
 @code
 {
-	[Property] PlayerHP _playerHP{ get; set; }
+	[Property] UnitComponent unitComponent{ get; set; }
 	[Property] WeaponHolderScript _weaponHolder { get; set; }
 
 	private float _HP;
 	protected override int BuildHash()
 	{
-		if (!_playerHP.IsValid())
+		if (!unitComponent.IsValid())
 		{
 			_HP = 0;
 		}
 		else
 		{
-			_HP = _playerHP.playerHP;
+			_HP = unitComponent.currentHP;
 		}
 		return System.HashCode.Combine(_HP, _weaponHolder.currentAmmo, _weaponHolder.maxAmmo);
 	}
