@@ -36,7 +36,7 @@ public sealed class Explode : Component
 			var hitObjects = objects.GameObject;
 			var unit = hitObjects.GetComponent<UnitComponent>();
 			var unitRB = hitObjects.GetComponent<Rigidbody>();
-			Log.Info(hitObjects.Name );
+			//Log.Info(hitObjects.Name );
 			Vector3 direciton = (hitObjects.WorldPosition - this.GameObject.WorldPosition).Normal;
 			float distance = (hitObjects.WorldPosition - this.GameObject.WorldPosition).Length;
 			float forceScale = 1 - (distance / explosionRadius);

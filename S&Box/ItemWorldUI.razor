@@ -1,0 +1,23 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace Sandbox
+
+<root>
+	<div class="Name">@itemName</div>
+</root>
+
+@code
+{
+	[Property] TestItems item { get; set; }
+
+	string itemName;
+
+	protected override int BuildHash()
+	{
+		item = GameObject.GetComponentInParent<TestItems>();
+		itemName = item.itemName;
+		this.GameObject.SetParent(null, false);
+		return System.HashCode.Combine(itemName);
+	}
+}

@@ -12,7 +12,7 @@ public sealed class WeaponHolderScript : Component
 		Melee_Punch = 3,
 		Big_Pistol = 4,
 	}
-	[Property] SkinnedModelRenderer mainBody { get; set;}
+	[Sync] [Property] SkinnedModelRenderer mainBody { get; set;}
 
 	[Property] SoundEvent switchSound { get; set; }
 
@@ -22,8 +22,8 @@ public sealed class WeaponHolderScript : Component
 	[Property] GameObject meleePunch { get; set;}
 	[Property, ReadOnly] weaponList weaponEquip { get; set;}
 
-	[Property, ReadOnly] WeaponPistolScript weaponPistol { get; set; }
-	[Property, ReadOnly] WeaponShotgunScript weaponShotgun { get; set; }
+	[Property ] WeaponPistolScript weaponPistol { get; set; }
+	[Property] WeaponShotgunScript weaponShotgun { get; set; }
 	[Property, ReadOnly] public int currentAmmo { get; set; }
 	[Property, ReadOnly] public int maxAmmo { get; set; }
 
@@ -34,6 +34,7 @@ public sealed class WeaponHolderScript : Component
 	}
 	protected override void OnUpdate()
 	{
+		if (IsProxy ) return;
 		switch (true)
 		{
 			case var _ when Input.Pressed( "Holster" ):
@@ -41,32 +42,35 @@ public sealed class WeaponHolderScript : Component
 				Log.Info( "Switch to Holster" );
 				weaponEquip = weaponList.None;
 				checkWeaponHold( weaponEquip );
+				playSwitchSound();
 				break;
 			case var _ when Input.Pressed( "Slot1" ):
 				if ( weaponEquip == weaponList.Pistol ) break;
 				Log.Info( "Switch to Pistol" );
 				weaponEquip = weaponList.Pistol;
 				checkWeaponHold( weaponEquip );
-				weaponPistol = Pistol.GetComponent<WeaponPistolScript>();
+				playSwitchSound();
 				break;
 			case var _ when Input.Pressed( "Slot2" ):
 				if ( weaponEquip == weaponList.Shotgun ) break;
 				Log.Info( "Switch to Shotgun" );
 				weaponEquip = weaponList.Shotgun;
 				checkWeaponHold( weaponEquip );
-				weaponShotgun = Shotgun.GetComponent<WeaponShotgunScript>();
+				playSwitchSound();
 				break;
 			case var _ when Input.Pressed( "Slot3" ):
 				if ( weaponEquip == weaponList.Big_Pistol ) break;
 				Log.Info( "Switch to Big Pistol" );
 				weaponEquip = weaponList.Big_Pistol;
 				checkWeaponHold( weaponEquip );
+				playSwitchSound();
 				break;
 			case var _ when Input.Pressed( "Melee" ):
 				if ( weaponEquip == weaponList.Melee_Punch ) break;
 				Log.Info( "Switch to Melee - Punch " );
 				weaponEquip = weaponList.Melee_Punch;
 				checkWeaponHold( weaponEquip );
+				playSwitchSound();
 				break;
 			default:
 				break;
@@ -117,7 +121,11 @@ public sealed class WeaponHolderScript : Component
 				break;
 		}
 	}
-
+	void playSwitchSound()
+	{
+		if (!switchSound.IsValid() ) return;
+		Sound.Play(switchSound, Transform.World.Position );
+	}
 
 	void ammoCheck()
 	{

@@ -8,7 +8,7 @@ public sealed class BulletTest : Component
 	public float damage;
 	float currentRange;
 	private Vector3 startPosition;
-	public float maxRange;
+	public float maxRange { get; set; }
 
 	public TeamType teamType;
 
@@ -18,6 +18,7 @@ public sealed class BulletTest : Component
 	protected override void OnStart()
 	{
 		startPosition = WorldPosition;
+		Log.Info("Damage: " +damage + " MaxRange: " + maxRange );
 	}
 	protected override void OnUpdate()
 	{

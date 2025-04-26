@@ -10,21 +10,20 @@ public sealed class WeaponPistolScript : Component
 		Rare = 2,
 	}
 
-	[Property, Group( "References" )] PlayerController controller { get; set; }
-	[Property, Group("References")] SkinnedModelRenderer mainBody { get; set; }
-	[Property, Group( "References" )] SkinnedModelRenderer gunModel { get; set; }
-	[Property, Group( "References" )] UnitComponent unitComponent { get; set; }
-	[Property, Group( "References" )] GameObject firePoint { get; set; }
-	[Property, Group( "References" )] GameObject camera { get; set; }
-	[Property, Group( "References" )] GameObject muzzleFlashPosition { get; set; }
-	[Property, Group( "References" )] GameObject ejectPosition { get; set; }
+	[Property, Group( "References" )] private PlayerController controller { get; set; }
+	[Sync] [Property, Group( "References" )] private SkinnedModelRenderer mainBody { get; set; }
+	[Property, Group( "References" )] private SkinnedModelRenderer gunModel { get; set; }
+	[Property, Group( "References" )] private UnitComponent unitComponent { get; set; }
+	[Property, Group( "References" )] private GameObject camera { get; set; }
+	[Property, Group( "References" )] private GameObject muzzleFlashPosition { get; set; }
+	[Property, Group( "References" )] private GameObject ejectPosition { get; set; }
 
-	[Property, Group( "References" )] SoundEvent gunClick { get; set; }
-	[Property, Group( "References" )] SoundEvent fireSound { get; set; }
-	[Property, Group( "References" )] SoundEvent reloadSound { get; set; }
-	[Property, Group( "References" )] string muzzleFlashPrefab { get; set; } = "weapon/pistol/pistol_muzzleflash.prefab";
-	[Property, Group( "References" )] string shellCasingPrefab { get; set; } = "weapon/pistol/pistol_shell.prefab";
-	[Property, Group( "References" )] PrefabFile bulletPrefab { get; set; }
+	[Property, Group( "References" )] private SoundEvent gunClick { get; set; }
+	[Property, Group( "References" )] private SoundEvent fireSound { get; set; }
+	[Property, Group( "References" )] private SoundEvent reloadSound { get; set; }
+	[Property, Group( "References" )] private string muzzleFlashPrefab { get; set; } = "weapon/pistol/pistol_muzzleflash.prefab";
+	[Property, Group( "References" )] private string shellCasingPrefab { get; set; } = "weapon/pistol/pistol_shell.prefab";
+	[Property, Group( "References" )] private string bulletPrefab { get; set; } = "weapon/pistol/bullet_Test.prefab";
 
 	[Property] weaponTier gunTier { get; set; } = weaponTier.Default; // Default, Uncommon, Rare
 
@@ -43,7 +42,7 @@ public sealed class WeaponPistolScript : Component
 	/// <summary>
 	/// How long is the gun's range. Raycast method
 	/// </summary>
-	[Property, Group( "A2 Default Pistol Stats" ), Feature( "Gun Stats" )] float Range_default { get; set; } = 500f;
+	 [Property, Group( "A2 Default Pistol Stats" ), Feature( "Gun Stats" )] float Range_default { get; set; } = 500f;
 	/// <summary>
 	/// How fast the gun will fire, in seconds. 0.2f = 5 shots per second.
 	/// </summary>
@@ -122,31 +121,81 @@ public sealed class WeaponPistolScript : Component
 	/// <summary>
 	/// 25% chance to fire two bullet instead of one. Consumes two bullets.
 	/// </summary>
-	[Property, Group( "Gun Power UPs" )] public bool isDoubleTapEnabled { get; set; }
-	/*{
+	[Property, Group( "Gun Power UPs" ), ReadOnly] public bool isDoubleTapEnabled
+	{
 		get
 		{
-			if(unitComponent.isDoubleTapEnabled )
+			if ( unitComponent.IsValid )
+			{
+				if ( unitComponent.isDoubleTapEnabled == true )
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
+	private bool _isDoubleTapEnabled
+	{
+		get
+		{
+			if ( isDoubleTapEnabled == true )
 			{
 				return true;
 			}
-			else return false;
+			else
+			{
+				return false;
+			}
 		}
-		set => isDoubleTapEnabled = value;
-	}*/
-	[Property, Group( "Gun Power UPs" )] public bool doBulletsExplode { get;set; }
-	/*{
+	}
+	[Property, Group( "Gun Power UPs" ), ReadOnly]
+	public bool doBulletsExplode
+	{
 		get
 		{
-			if ( unitComponent.doBulletsExplode )
+			if ( unitComponent.IsValid )
+			{
+				if ( unitComponent.doBulletsExplode == true )
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	private bool _doBulletsExplode
+	{
+		get
+		{
+			if( doBulletsExplode == true )
 			{
 				return true;
 			}
-			else return false;
+			else
+			{
+				return false;
+			}
 		}
-		set => doBulletsExplode = value;
-	}*/
-	[Property, Group( "Gun Power UPs" )] public bool doBulletsPenetrate { get; set; }
+	}
+	[Property, Group( "Gun Power UPs" ), ReadOnly] public bool doBulletsPenetrate { get; set; }
+
+	private bool _doBulletsPenetrate;
 
 	[Property, Group( "Miscellaneous" )] float shellCasingTimeToDisappear { get; set; } = 10f;
 
@@ -158,7 +207,6 @@ public sealed class WeaponPistolScript : Component
 	public int _currentAmmo;
 	float _nextFire;
 	float _reloadStopTime = 0f;
-	bool _canDoubleTap= false;
 
 
 	Line line = new Line( new Vector3( 0, 0, 0 ), new Vector3( 10, 0, 0 ) );
@@ -193,13 +241,15 @@ public sealed class WeaponPistolScript : Component
 
 	protected override void OnFixedUpdate()
 	{
-		
+		if ( IsProxy ) return;
 		if ( !mainBody.IsValid() ) return;
+		//Log.Info( "Double Tap" + isDoubleTapEnabled );
+		//Log.Info("Double Tap" +_isDoubleTapEnabled );
 		if (this.GameObject.Enabled == true)
 		{
 			if (Input.Down("Attack1") && _canFire && !_isReloading && _onEnable)
 			{
-				if ( isDoubleTapEnabled && _currentAmmo >= 2 && Random.Shared.Float( 0, 1 ) < 0.2f )
+				if ( _isDoubleTapEnabled && _currentAmmo >= 2 && Random.Shared.Float( 0, 1 ) < 0.2f )
 				{
 					Log.Info( "Double Tap!" );
 					doubleTap();
@@ -314,8 +364,8 @@ public sealed class WeaponPistolScript : Component
 
 	private void spawnProjectile()
 	{
-		if ( !bulletPrefab.IsValid ) return;
 		var projectile = GameObject.Clone( bulletPrefab, muzzleFlashPosition.WorldTransform );
+		projectile.NetworkSpawn();
 		Rigidbody rb = projectile.GetComponent<Rigidbody>();
 		BulletTest bullet = projectile.GetComponent<BulletTest>();
 		if ( !rb.IsValid) return;
@@ -324,7 +374,7 @@ public sealed class WeaponPistolScript : Component
 		bullet.damage = Damage;
 		bullet.teamType = unitComponent.teamType;
 		rb.ApplyForce( controller.EyeAngles.Forward * bulletSpeed_default);
-		if ( doBulletsExplode )
+		if ( _doBulletsExplode )
 		{
 			projectile.AddComponent<Explode>();
 			var explosion = projectile.GetComponent<Explode>();
@@ -333,18 +383,21 @@ public sealed class WeaponPistolScript : Component
 			explosion.explosionForce = explosionForce;
 			explosion.teamType = unitComponent.teamType;
 		}
+		
 	}
 
-	private async void shellCasingCreateDestroy()
+	private void shellCasingCreateDestroy()
 	{
 		var ejectedCasing = GameObject.Clone( shellCasingPrefab, ejectPosition.WorldTransform );
-		await Task.DelaySeconds( shellCasingTimeToDisappear );
-		ejectedCasing.Destroy();
+		var particleDestroy = ejectedCasing.GetComponent<ParticleDestroy>();
+		ejectedCasing.NetworkSpawn();
+		particleDestroy.timeToDestroy = shellCasingTimeToDisappear;
 	}
 
 	private async void muzzleFlashs()
 	{
 		GameObject muzzleFlashCreate = GameObject.Clone( muzzleFlashPrefab, muzzleFlashPosition.WorldTransform );
+		muzzleFlashCreate.NetworkSpawn(); 
 		await Task.DelaySeconds( 0.05f );
 		muzzleFlashCreate.Destroy();
 	}
