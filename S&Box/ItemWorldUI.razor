@@ -9,13 +9,16 @@
 
 @code
 {
-	[Property] TestItems item { get; set; }
+	TestItems item;
 
 	string itemName;
 
+	protected override void OnStart(){
+		item = GameObject.GetComponentInParent<TestItems>();
+	}
 	protected override int BuildHash()
 	{
-		item = GameObject.GetComponentInParent<TestItems>();
+		
 		itemName = item.itemName;
 		this.GameObject.SetParent(null, false);
 		return System.HashCode.Combine(itemName);

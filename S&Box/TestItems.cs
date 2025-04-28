@@ -14,10 +14,6 @@ public sealed class TestItems : Component
 	[Property, Feature( "Upgrades" )] public bool canDash { get; set; } = false;
 	[Property, Feature( "Upgrades" )] public bool isDoubleTapEnabled { get; set; } = false;
 	[Property, Feature( "Upgrades" )] public bool doBulletsExplode { get; set; } = false;
-
-
-
-	UnitComponent unitComponent;
 	GameObject UI { get; set; }
 	float timer;
 	protected override void OnAwake()

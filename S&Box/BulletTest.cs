@@ -27,11 +27,12 @@ public sealed class BulletTest : Component
 		var tr = Scene.Trace
 			.Sphere( 1.8f, startPosition, this.GameObject.WorldPosition )
 			.WithoutTags( "player" )
-			.WithoutTags("particle")
+			.WithoutTags("particle")																																																																	
 			.Run();	
 
 		if ( tr.Hit )
 		{
+			//Log.Info( "Hit " + tr.GameObject.Name );
 			var hitObject = tr.GameObject;
 			var unit = hitObject.GetComponent<UnitComponent>();
 			
@@ -40,6 +41,20 @@ public sealed class BulletTest : Component
 				if(teamType == TeamType.Player)
 				{
 					if ( unit.teamType == TeamType.Enemy )
+					{
+						unit.onDamage( damage );
+					}
+				}
+				else if (teamType == TeamType.Enemy)
+				{
+					if (unit.teamType == TeamType.Player )
+					{
+						unit.onDamage( damage );
+					}
+				}
+				else if ( teamType == TeamType.Neutral )
+				{
+					if ( unit.teamType == TeamType.Player || unit.teamType == TeamType.Enemy )
 					{
 						unit.onDamage( damage );
 					}

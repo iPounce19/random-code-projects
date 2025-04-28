@@ -199,7 +199,7 @@ public sealed class WeaponPistolScript : Component
 
 	[Property, Group( "Miscellaneous" )] float shellCasingTimeToDisappear { get; set; } = 10f;
 
-	SoundHandle stopSound;
+	SoundHandle reloadSoundHandle = null;
 	public bool isFiring; // For reference just in case if ModelRenderer is managed by another script
 	bool _onEnable = false;
 	bool _canFire;
@@ -231,20 +231,32 @@ public sealed class WeaponPistolScript : Component
 		if(_isReloading) // Fixes reloading, unable to get maxAmmo if you disabled or switched to another weapon while the weapon is reloading...
 		{
 			//Future fix, Cancel animation, During reload animation, swapping back, and reloading again, the animation is not played.
-			stopSound.Stop();
+			reloadSoundHandle.Stop();
 			_isReloading = false;
 			_reloadStopTime = 0f;
 		}
 	}
 
 
+	protected override void OnUpdate()
+	{
+		//debugPistol();
 
+	}
 	protected override void OnFixedUpdate()
 	{
 		if ( IsProxy ) return;
 		if ( !mainBody.IsValid() ) return;
 		//Log.Info( "Double Tap" + isDoubleTapEnabled );
 		//Log.Info("Double Tap" +_isDoubleTapEnabled );
+		if (reloadSoundHandle != null)
+		{
+			if ( reloadSoundHandle.IsPlaying)
+			{
+				reloadSoundHandle.Transform = WorldTransform;
+			}
+		}
+
 		if (this.GameObject.Enabled == true)
 		{
 			if (Input.Down("Attack1") && _canFire && !_isReloading && _onEnable)
@@ -315,7 +327,10 @@ public sealed class WeaponPistolScript : Component
 		}
 	}
 
-
+	void debugPistol()
+	{
+		Gizmo.Draw.Line( controller.EyeTransform.Position, controller.EyeTransform.Position + controller.EyeAngles.Forward * 5000f );
+	}
 	void pistolAttack()
 	{
 		if (_currentAmmo > 0 )
@@ -351,7 +366,7 @@ public sealed class WeaponPistolScript : Component
 	private void pistolReloadSound()
 	{
 		if ( !reloadSound.IsValid ) return;
-		stopSound = Sound.Play( reloadSound, Transform.World.Position );
+		reloadSoundHandle = Sound.Play( reloadSound, Transform.World.Position );
 		//Log.Info( "Pistol Reload Sound Played" );
 	}
 	void pistolReload()
@@ -382,6 +397,7 @@ public sealed class WeaponPistolScript : Component
 			explosion.explosionRadius = explosionRadius;
 			explosion.explosionForce = explosionForce;
 			explosion.teamType = unitComponent.teamType;
+			explosion.explodeType = ExplodeType.Small;
 		}
 		
 	}

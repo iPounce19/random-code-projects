@@ -40,6 +40,8 @@ public enum backGear
 
 public sealed class UnitComponent : Component
 {
+
+	
 	[Property, Feature( "Basic Information" )] public string unitName { get; set; }
 	[Property, Feature( "Basic Information" )] public TeamType teamType { get; set; }
 	[Property, Feature( "Basic Information" )] public playerClass playerClass { get; set; }
@@ -84,6 +86,10 @@ public sealed class UnitComponent : Component
 	float timeToDash;
 	bool _canDash = true;
 	bool _firstJump;
+
+	string playerName;
+	string avatarURL;
+
 
 	TestItems item;
 	protected override void OnStart()
@@ -168,6 +174,15 @@ public sealed class UnitComponent : Component
 	{
 		if ( !mainBody.IsValid() ) return;
 		mainBody.Set( "hit", true );
+		damageTint();
+
+	}
+
+	async void damageTint()
+	{
+		mainBody.Tint = Color.Red;
+		await Task.DelaySeconds( 0.1f );
+		mainBody.Tint = Color.White;
 	}
 	public void onHeal( float heal )
 	{

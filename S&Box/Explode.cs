@@ -2,12 +2,19 @@ using Sandbox;
 using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 
+public enum ExplodeType
+{
+	Small,
+	Medium,
+	Large
+}
 public sealed class Explode : Component
 {
 	public float explosionDamage { get; set; } = 0f;
 	public float explosionRadius { get; set; } = 0f;
 	public float explosionForce { get; set; } = 0f;
 
+	public ExplodeType explodeType { get; set; }
 	public TeamType teamType { get; set; }
 
 
@@ -30,7 +37,7 @@ public sealed class Explode : Component
 			.WithoutTags( "trigger" )
 			.WithoutTags( "particle" );
 		var result = tr.RunAll();
-
+		doSoundExplode();
 		foreach (var objects in result)
 		{
 			var hitObjects = objects.GameObject;
@@ -46,6 +53,7 @@ public sealed class Explode : Component
 				if ( unit != null && unit.teamType == TeamType.Enemy )
 				{
 					unit.onDamage( explosionDamage );
+					
 				}
 			}
 			else if ( teamType == TeamType.Enemy )
@@ -53,6 +61,7 @@ public sealed class Explode : Component
 				if ( unit != null && unit.teamType == TeamType.Player )
 				{
 					unit.onDamage( explosionDamage );
+					doSoundExplode();
 				}
 			}
 			if( unitRB != null )
@@ -60,6 +69,25 @@ public sealed class Explode : Component
 				unitRB.ApplyImpulseAt( hitObjects.WorldPosition, force + (Vector3.Up * 1000f));
 			}
 
+		}
+	}
+	void doSoundExplode()
+	{
+		switch(explodeType)
+		{
+			case ExplodeType.Small:
+				GameObject.Clone("prefab/ExplosionSmall.prefab", this.GameObject.WorldTransform);
+				Log.Info( "Small Explosion" );
+				break;
+			case ExplodeType.Medium:
+				// do medium explosion sound
+				break;
+			case ExplodeType.Large:
+				// do large explosion sound
+				break;
+
+			default:
+				break;
 		}
 	}
 

@@ -4,15 +4,19 @@
 @namespace Sandbox
 
 <root>
-	<div class="Health">
-		<p>
-			💖: @_HP
-		</p>
-	</div>
-	<div class="currentGun">
-		<p>
-			Ammo:  @_weaponHolder.currentAmmo | @_weaponHolder.maxAmmo
-		</p>
+	<div class="PlayerHUD">
+		<div class="Health">
+			<p>
+				💖: @_HP
+			</p>
+		</div>
+		<div class="currentGun">
+			<p>
+				Ammo:  @_weaponHolder.currentAmmo | @_weaponHolder.maxAmmo
+			</p>
+		</div>
+		<div class="crosshair"></div>
+		<div class="Coins">🪙: @_coins</div>
 	</div>
 </root>
 
@@ -22,16 +26,19 @@
 	[Property] WeaponHolderScript _weaponHolder { get; set; }
 
 	private float _HP;
+	private float _coins;
 	protected override int BuildHash()
 	{
 		if (!unitComponent.IsValid())
 		{
 			_HP = 0;
+			_coins = 0;
 		}
 		else
 		{
 			_HP = unitComponent.currentHP;
+			_coins = unitComponent.playerCredit;
 		}
-		return System.HashCode.Combine(_HP, _weaponHolder.currentAmmo, _weaponHolder.maxAmmo);
+		return System.HashCode.Combine(_HP, _weaponHolder.currentAmmo, _weaponHolder.maxAmmo, _coins);
 	}
 }

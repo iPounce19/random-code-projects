@@ -1,0 +1,31 @@
+@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace Sandbox
+
+<root>
+	<div class="title">
+		@playernName
+	</div>
+</root>
+
+@code
+{
+
+	string playernName = null;
+	string avatarURL = null;
+	protected override void OnStart(){
+		var localProfile = Sandbox.Services.Players.Profile.Local;
+		playernName = localProfile.Name;
+		//avatarURL = localProfile.AvatarUrl;
+	}
+
+	/// <summary>
+	/// the hash determines if the system should be rebuilt. If it changes, it will be rebuilt
+	/// </summary>
+	protected override int BuildHash()
+	{
+
+		return System.HashCode.Combine(playernName);
+	}
+}
